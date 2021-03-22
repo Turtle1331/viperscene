@@ -5,7 +5,12 @@ from .script import ScriptAsset, ScriptEnvironment, ScriptInstance
 
 
 class ScriptComponent(Component):
-    def __init__(self, entity: Entity, path: str, bindings: Dict[Type[Component], Tuple[List[str], bool]]) -> None:
+    def __init__(
+        self,
+        entity: Entity,
+        path: str,
+        bindings: Dict[Type[Component], Tuple[List[str], bool]],
+    ) -> None:
         self.path = path
         self.asset = ScriptAsset(path)
         self.env = ScriptEnvironment(self.asset)
@@ -25,7 +30,9 @@ class ScriptComponent(Component):
             attrs, writable = binding
             if writable:
                 component = self.entity.get_component(comp_type)
-                self.instance.set_component_values({attr: getattr(component, attr) for attr in attrs})
+                self.instance.set_component_values(
+                    {attr: getattr(component, attr) for attr in attrs}
+                )
 
         self.instance.update(dt)
         values = self.instance.get_component_values()
@@ -33,4 +40,6 @@ class ScriptComponent(Component):
         for comp_type, binding in self.bindings.items():
             attrs, writable = binding
             if writable:
-                self.entity.update_component(comp_type, *(values.get(attr) for attr in attrs))
+                self.entity.update_component(
+                    comp_type, *(values.get(attr) for attr in attrs)
+                )

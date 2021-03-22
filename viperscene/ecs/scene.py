@@ -3,6 +3,7 @@ from typing import Set, Iterator, Optional, cast
 from viperscene.scripting import ScriptComponent
 from viperscene.ecs import Entity
 
+
 class Registry:
     def __init__(self) -> None:
         self.entities: Set[Entity] = set()
@@ -30,9 +31,8 @@ class Scene:
 
     def update(self, dt: float) -> None:
         for entity in self.registry:
-            script = cast(Optional[ScriptComponent], entity.get_component(ScriptComponent))
+            script = cast(
+                Optional[ScriptComponent], entity.get_component(ScriptComponent)
+            )
             if script:
                 script.update(dt)
-
-
-

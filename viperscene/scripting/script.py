@@ -23,7 +23,9 @@ class ScriptEnvironment:
         self.memory_len = raw_memory.data_len
         self.memory_ctype = ctypes.c_ubyte * self.memory_len
 
-        mem_as_array = ctypes.cast(raw_memory.data_ptr, ctypes.POINTER(self.memory_ctype))[0]
+        mem_as_array = ctypes.cast(
+            raw_memory.data_ptr, ctypes.POINTER(self.memory_ctype)
+        )[0]
         self.memory_view = memoryview(mem_as_array).cast("B")
 
     def f64_load(self, addr: int) -> float:
@@ -37,12 +39,12 @@ class ScriptEnvironment:
 
 ComponentValues = Dict[str, Union[int, float]]
 
+
 class ScriptInstance:
     def __init__(self, env: ScriptEnvironment) -> None:
         self.env = env
         self.data_len = self.env.memory_len
 
-        
         self.memory_view = self.env.memory_view
         self.memory_copy = memoryview(self.env.memory_ctype()).cast("B")
         self.component_values: ComponentValues = {}
@@ -81,7 +83,7 @@ class ScriptInstance:
     def get_component_values(self) -> ComponentValues:
         # Engine-facing call
         return self.component_values.copy()
-    
+
     def set_component_values(self, comp_vals: ComponentValues) -> None:
         # Engine-facing call
         self.component_values.update(comp_vals)

@@ -4,6 +4,7 @@ import sys
 
 from viperscene.components import MaterialComponent
 
+
 class Framebuffer:
     def __init__(self, width: int) -> None:
         assert width >= 0
@@ -24,13 +25,15 @@ class Framebuffer:
 
 
 class Display:
-    PERMITTED_CHARS = set( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()`~-_=+[]{}\\|'\";:,.<>/? ")
+    PERMITTED_CHARS = set(
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()`~-_=+[]{}\\|'\";:,.<>/? "
+    )
 
     def __init__(self, width: int) -> None:
         assert width >= 0
         self.width = width
 
-    def __enter__(self) -> 'Display':
+    def __enter__(self) -> "Display":
         return self
 
     def submit_frame(self, framebuffer: Framebuffer) -> None:
