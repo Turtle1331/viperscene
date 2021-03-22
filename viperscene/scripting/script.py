@@ -16,29 +16,31 @@ class ScriptEnvironment(object):
 
         self.wasm_setup = self.wasm_instance.exports["setup"]
         self.wasm_update = self.wasm_instance.exports["update"]
-        self.wasm_memory = self.wasm_instance.exports["memory"]
+
+        raw_memory = self.wasm_instance.exports["memory"]
+        self.memory_len = raw_memory.data_len
+        self.memory_ctype = ctypes.c_ubyte * self.memory_len
+
+        mem_as_array = ctypes.cast(raw_memory.data_ptr, ctypes.POINTER(self.memory_ctype))[0]
+        self.memory_view = memoryview(mem_as_array).cast("B")
 
     def f64_load(self, addr):
-        assert 0 <= addr <= self.wasm_memory.data_len and addr % 8 == 0
-        raw_value = bytearray(self.wasm_memory.data_ptr[addr:addr+8])
-        value = struct.unpack("d", raw_value)[0]
-        return value
+        assert 0 <= addr <= self.memory_len and addr % 8 == 0
+        return struct.unpack_from("d", self.memory_view, addr)[0]
 
     def f64_store(self, addr, value):
-        assert 0 <= addr <= self.wasm_memory.data_len and addr % 8 == 0
-        raw_value = struct.pack("d", float(value))
-        for i in range(8):
-            self.wasm_memory.data_ptr[addr+i] = raw_value[i]
+        assert 0 <= addr <= self.memory_len and addr % 8 == 0
+        struct.pack_into("d", self.memory_view, addr, float(value))
 
 
 class ScriptInstance(object):
     def __init__(self, env):
         self.env = env
-        self.data_len = self.env.wasm_memory.data_len
+        self.data_len = self.env.memory_len
 
-        mem_type = ctypes.c_char * self.data_len
-        self.data_arr = ctypes.cast(self.env.wasm_memory.data_ptr, ctypes.POINTER(mem_type))[0]
-        self.memory = mem_type()
+        
+        self.memory_view = self.env.memory_view
+        self.memory_copy = memoryview(self.env.memory_ctype()).cast("B")
         self.component_values = {}
 
     def setup(self):
@@ -59,10 +61,10 @@ class ScriptInstance(object):
         self.store_component_values()
 
     def load_memory(self):
-        self.data_arr.contents = self.memory 
+        self.memory_view[:] = self.memory_copy[:]
 
     def store_memory(self):
-        self.memory.contents = self.data_arr
+        self.memory_copy[:] = self.memory_view[:]
 
     def load_component_values(self):
         # Loading from instance, storing to Wasm
