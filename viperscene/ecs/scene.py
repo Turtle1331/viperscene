@@ -1,33 +1,36 @@
+from typing import Set, Iterator, Optional, cast
+
 from viperscene.scripting import ScriptComponent
+from viperscene.ecs import Entity
 
-class Registry(object):
-    def __init__(self):
-        self.entities = set()
+class Registry:
+    def __init__(self) -> None:
+        self.entities: Set[Entity] = set()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Entity]:
         return iter(self.entities.copy())
 
-    def add_entity(self, entity):
+    def add_entity(self, entity: Entity) -> None:
         self.entities.add(entity)
 
-    def remove_entity(self, entity):
+    def remove_entity(self, entity: Entity) -> None:
         self.entities.remove(entity)
 
 
-class Scene(object):
-    def __init__(self, background=" "):
+class Scene:
+    def __init__(self, background: str = " ") -> None:
         self.background = background
         self.registry = Registry()
 
-    def add_entity(self, entity):
+    def add_entity(self, entity: Entity) -> None:
         self.registry.add_entity(entity)
 
-    def remove_entity(self, entity):
+    def remove_entity(self, entity: Entity) -> None:
         self.registry.remove_entity(entity)
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         for entity in self.registry:
-            script = entity.get_component(ScriptComponent)
+            script = cast(Optional[ScriptComponent], entity.get_component(ScriptComponent))
             if script:
                 script.update(dt)
 

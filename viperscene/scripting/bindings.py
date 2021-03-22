@@ -1,9 +1,11 @@
-from .script import ScriptAsset, ScriptEnvironment, ScriptInstance
+from typing import Dict, List, Tuple, Type
+
 from viperscene.ecs import Entity, Component
+from .script import ScriptAsset, ScriptEnvironment, ScriptInstance
 
 
 class ScriptComponent(Component):
-    def __init__(self, entity, path, bindings):
+    def __init__(self, entity: Entity, path: str, bindings: Dict[Type[Component], Tuple[List[str], bool]]) -> None:
         self.path = path
         self.asset = ScriptAsset(path)
         self.env = ScriptEnvironment(self.asset)
@@ -13,11 +15,13 @@ class ScriptComponent(Component):
         self.entity = entity
         self.bindings = bindings.copy()
 
-    def on_added(self):
+    def on_added(self) -> None:
         self.instance.setup()
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         for comp_type, binding in self.bindings.items():
+            attrs: List[str]
+            writable: bool
             attrs, writable = binding
             if writable:
                 component = self.entity.get_component(comp_type)

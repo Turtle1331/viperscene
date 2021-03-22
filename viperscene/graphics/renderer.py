@@ -1,20 +1,24 @@
+from typing import Optional, cast
+
 from .hardware import Framebuffer
 from viperscene.components import TransformComponent, MaterialComponent
+from viperscene.ecs import Scene
+from viperscene.graphics.hardware import Display
 
 
 class Renderer(object):
-    def __init__(self, display, scene):
+    def __init__(self, display: 'Display', scene: Scene) -> None:
         self.display = display
         self.framebuffer = Framebuffer(display.width)
         self.rasterizer = Rasterizer(self.framebuffer, scene.background)
         self.scene = scene
     
-    def render(self):
+    def render(self) -> None:
         self.rasterizer.draw_background()
 
         for entity in self.scene.registry:
-            transform = entity.get_component(TransformComponent)
-            material = entity.get_component(MaterialComponent)
+            transform = cast(Optional[TransformComponent], entity.get_component(TransformComponent))
+            material = cast(Optional[MaterialComponent], entity.get_component(MaterialComponent))
 
             if transform and material:
                 self.rasterizer.draw_point(int(transform.pos_x + 0.5), material)
@@ -23,19 +27,19 @@ class Renderer(object):
 
 
 class Rasterizer(object):
-    def __init__(self, framebuffer, background):
+    def __init__(self, framebuffer: Framebuffer, background: str) -> None:
         self.framebuffer = framebuffer
         self.background = background
 
-    def draw_background(self):
+    def draw_background(self) -> None:
         self.framebuffer.clear(self.background)
 
-    def draw_point(self, pos, material):
+    def draw_point(self, pos: int, material: MaterialComponent) -> None:
         # Visibility test
         if 0 <= pos < self.framebuffer.width:
             self.framebuffer.set_pixel(pos, material)
 
-    def draw_line(self, start, end, material):
+    def draw_line(self, start: int, end: int, material: MaterialComponent) -> None:
         # Inclusive of both endpoints
         # Swap if needed
         if end > start:
