@@ -28,12 +28,20 @@ class ScriptEnvironment:
         )[0]
         self.memory_view = memoryview(mem_as_array).cast("B")
 
+    def _check_addr(self, addr: int) -> None:
+        if not 0 <= addr < self.memory_len:
+            raise IndexError(
+                f"Expected address between 0 and {self.memory_len - 1} (memory length - 1), got {addr}"
+            )
+        if addr % 8 != 0:
+            raise ValueError(f"Expected address with 8-byte alignment, got {addr}")
+
     def f64_load(self, addr: int) -> float:
-        assert 0 <= addr <= self.memory_len and addr % 8 == 0
+        self._check_addr(addr)
         return struct.unpack_from("d", self.memory_view, addr)[0]
 
     def f64_store(self, addr: int, value: float) -> None:
-        assert 0 <= addr <= self.memory_len and addr % 8 == 0
+        self._check_addr(addr)
         struct.pack_into("d", self.memory_view, addr, float(value))
 
 

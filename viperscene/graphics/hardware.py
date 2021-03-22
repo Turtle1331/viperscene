@@ -7,18 +7,20 @@ from viperscene.components import MaterialComponent
 
 class Framebuffer:
     def __init__(self, width: int) -> None:
-        assert width >= 0
+        if width < 0:
+            raise ValueError(f"Framebuffer cannot have negative width {width}")
         self.width = width
         self.buffer = ["%"] * width
 
     def set_pixel(self, index: int, material: MaterialComponent) -> None:
-        assert 0 <= index < self.width
-        assert isinstance(material, MaterialComponent)
+        if not 0 <= index < self.width:
+            raise ValueError(
+                f"Expected pixel index between 0 and {self.width - 1}, got {index}"
+            )
         self.buffer[index] = material.material
 
-    def clear(self, material: str) -> None:
-        assert isinstance(material, str) and len(material) == 1
-        self.buffer[:] = [material] * self.width
+    def clear(self, material: MaterialComponent) -> None:
+        self.buffer[:] = [material.material] * self.width
 
     def output(self) -> str:
         return "".join(self.buffer)
@@ -30,16 +32,23 @@ class Display:
     )
 
     def __init__(self, width: int) -> None:
-        assert width >= 0
+        if width < 0:
+            raise ValueError(f"Display cannot have negative width {width}")
         self.width = width
 
     def __enter__(self) -> "Display":
         return self
 
     def submit_frame(self, framebuffer: Framebuffer) -> None:
-        assert framebuffer.width == self.width
+        if framebuffer.width != self.width:
+            raise ValueError(
+                f"Submitted framebuffer width {framebuffer.width} does not equal display width {self.width}"
+            )
         output = framebuffer.output()
-        assert set(output) <= self.PERMITTED_CHARS
+        if not set(output) <= self.PERMITTED_CHARS:
+            raise ValueError(
+                f"Non-displayable character(s) in framebuffer: {output - self.PERMITTED_CHARS}"
+            )
         print(output, end="\r")
         sys.stdout.flush()
 

@@ -1,6 +1,7 @@
-from typing import Set, Iterator, Optional, cast
+from typing import Set, Iterator, Optional, cast, Union
 
 from viperscene.scripting import ScriptComponent
+from viperscene.components import MaterialComponent
 from viperscene.ecs import Entity
 
 
@@ -19,7 +20,9 @@ class Registry:
 
 
 class Scene:
-    def __init__(self, background: str = " ") -> None:
+    def __init__(self, background: Union[MaterialComponent, str] = " ") -> None:
+        if isinstance(background, str):
+            background = MaterialComponent(None, background)
         self.background = background
         self.registry = Registry()
 

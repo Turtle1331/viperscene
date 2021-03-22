@@ -20,7 +20,7 @@ Run the example:
 
 ## TODO
 - [x] figure out how to read from Wasmtime memory the right/clean way
-- [ ] replace asserts with type hints and error handling
+- [x] replace asserts with type hints and error handling
 - [ ] clean up the almost-too-tangled dependencies between the subdirectories
 - [ ] upgrade to a scene hierarchy using TransformComponent
 - [ ] add multiple entities to demonstrate component storage/loading

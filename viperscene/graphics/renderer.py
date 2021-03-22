@@ -31,7 +31,7 @@ class Renderer(object):
 
 
 class Rasterizer(object):
-    def __init__(self, framebuffer: Framebuffer, background: str) -> None:
+    def __init__(self, framebuffer: Framebuffer, background: MaterialComponent) -> None:
         self.framebuffer = framebuffer
         self.background = background
 

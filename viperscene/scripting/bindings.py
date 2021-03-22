@@ -16,7 +16,6 @@ class ScriptComponent(Component):
         self.env = ScriptEnvironment(self.asset)
         self.instance = ScriptInstance(self.env)
 
-        assert isinstance(entity, Entity)
         self.entity = entity
         self.bindings = bindings.copy()
 

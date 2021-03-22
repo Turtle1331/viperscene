@@ -10,5 +10,8 @@ class TransformComponent(Component):
 
 class MaterialComponent(Component):
     def __init__(self, _: Any, material: str) -> None:
-        assert isinstance(material, str) and len(material) == 1
+        if len(material) != 1:
+            raise ValueError(
+                f"Expected material string with length one, got {material!r}"
+            )
         self.material = str(material)
